@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flank: Competitive Radar for Unify GTM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --plum:#3A0B29;
+    --plum-light:#5A1440;
+    --plum-glow:#7A2657;
+    --ink:#140D11;
+    --cream:#F1ECE2;
+    --cream-dim:#E4DACB;
+    --amber:#F5A623;
+    --amber-dark:#D6870C;
+    --self:#34C759;
+    --blush:#E7B7CC;
+    --white:#FFFFFF;
+    --threat:#C43B3B;
+    --rising:#F5A623;
+    --adjacent:#8B3E68;
+    --fading:#9A9088;
+    --shadow: 0 12px 30px rgba(20,13,17,0.18);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .display{font-family:'Space Grotesk',sans-serif;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background: radial-gradient(circle at 85% -10%, var(--plum-glow) 0%, transparent 45%),
+                linear-gradient(160deg, var(--plum) 0%, var(--ink) 120%);
+    color:var(--white);
+    padding:44px 32px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:"";
+    position:absolute;
+    width:520px;height:520px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(245,166,35,0.20) 0%, transparent 70%);
+    top:-220px; right:-160px;
+    pointer-events:none;
+  }
+  .hero-inner{max-width:960px; margin:0 auto; position:relative; z-index:1;}
+  .wordmark{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:22px; letter-spacing:0.02em;
+  }
+  .wordmark-dot{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--amber);
+    box-shadow:0 0 0 4px rgba(245,166,35,0.22);
+  }
+  .tagline{
+    margin:4px 0 0 20px;
+    font-size:13px;
+    color:var(--blush);
+    letter-spacing:0.02em;
+  }
+  h1.headline{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:clamp(28px,4vw,42px);
+    line-height:1.12;
+    margin:32px 0 8px;
+    max-width:640px;
+  }
+  .sub{
+    color:var(--blush);
+    font-size:15px;
+    max-width:520px;
+    margin:0 0 28px;
+    line-height:1.5;
+  }
+  .assess-bar{
+    display:flex; gap:10px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:999px;
+    padding:6px;
+    max-width:560px;
+  }
+  .assess-bar input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--white);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:10px 16px;
+  }
+  .assess-bar input::placeholder{color:rgba(255,255,255,0.45);}
+  .assess-bar button{
+    background:var(--amber);
+    color:var(--ink);
+    border:none;
+    border-radius:999px;
+    padding:10px 22px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+    transition:background 0.15s ease;
+    white-space:nowrap;
+  }
+  .assess-bar button:hover{background:var(--amber-dark);}
+  .assess-bar button:disabled{opacity:0.5; cursor:default;}
+  .status-line{
+    margin-top:12px;
+    font-size:13px;
+    min-height:18px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .status-line.error{color:#F2A6A6;}
+  .status-line.loading{color:var(--blush);}
+  .pulse-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--amber);
+    animation:pulse 1.1s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{transform:scale(0.7); opacity:0.5;}
+    50%{transform:scale(1.15); opacity:1;}
+  }
+  .stat-row{
+    display:flex; align-items:center; gap:28px;
+    margin-top:30px;
+    padding-top:20px;
+    border-top:1px solid rgba(255,255,255,0.14);
+    flex-wrap:wrap;
+  }
+  .stat{font-size:13px; color:var(--blush);}
+  .stat b{
+    display:block;
+    font-family:'Space Grotesk',sans-serif;
+    color:var(--white);
+    font-size:22px;
+    font-weight:600;
+  }
+  .btn-rescan{
+    display:inline-block;
+    margin-left:auto;
+    background:transparent;
+    border:1.5px solid rgba(255,255,255,0.32);
+    color:var(--white);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.02em;
+    padding:12px 22px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn-rescan:hover{background:rgba(255,255,255,0.08); border-color:var(--amber);}
+  .btn-rescan:disabled{opacity:0.45; cursor:default;}
+
+  /* ---------- MAIN ---------- */
+  main{max-width:960px; margin:0 auto; padding:36px 32px 80px;}
+  .toolbar{
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:12px;
+    margin-bottom:20px;
+  }
+  .view-toggle{
+    display:inline-flex;
+    background:var(--white);
+    border-radius:999px;
+    padding:4px;
+    box-shadow:var(--shadow);
+  }
+  .view-toggle button{
+    border:none; background:transparent;
+    padding:8px 18px;
+    font-family:'Inter',sans-serif;
+    font-weight:600; font-size:13px;
+    border-radius:999px;
+    cursor:pointer;
+    color:var(--ink);
+    opacity:0.55;
+  }
+  .view-toggle button.active{
+    background:var(--plum);
+    color:var(--white);
+    opacity:1;
+  }
+  .company-filter{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .company-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    padding:7px 14px;
+    border-radius:999px;
+    border:1px solid rgba(20,13,17,0.16);
+    background:var(--white);
+    color:rgba(20,13,17,0.4);
+    cursor:pointer;
+    transition:all 0.12s ease;
+  }
+  .company-chip .chip-dot{
+    width:7px; height:7px; border-radius:50%;
+    background:currentColor;
+    opacity:0.5;
+  }
+  .company-chip.on{
+    color:var(--ink);
+    border-color:var(--plum);
+    background:var(--cream);
+  }
+  .company-chip.on .chip-dot{ opacity:1; }
+  .company-chip:hover{ border-color:var(--plum); }
+  .chip-action{
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    color:var(--plum);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:4px 6px;
+    text-decoration:underline;
+  }
+
+  /* ---------- QUADRANT ---------- */
+  .insight-bar{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    background:var(--white);
+    border:1px solid var(--cream-dim);
+    border-left:4px solid var(--self);
+    border-radius:14px;
+    padding:14px 18px;
+    margin-bottom:18px;
+  }
+  .insight-bar .insight-dot{
+    flex-shrink:0;
+    width:10px; height:10px; border-radius:50%;
+    background:var(--self);
+    margin-top:5px;
+  }
+  .insight-bar strong{
+    display:block;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13px;
+    margin-bottom:2px;
+  }
+  .insight-bar p{
+    margin:0;
+    font-size:13px;
+    line-height:1.5;
+    color:#3a2e33;
+  }
+
+  .quadrant-panel{
+    background: radial-gradient(circle at 20% 20%, var(--plum-glow) 0%, transparent 55%),
+                linear-gradient(160deg, var(--plum) 0%, var(--ink) 130%);
+    border-radius:20px;
+    padding:24px;
+    box-shadow:var(--shadow);
+  }
+  .quadrant-panel svg{width:100%; height:auto; display:block;}
+  .axis-label{
+    fill:var(--blush);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.04em;
+  }
+  .zone-label{
+    fill:rgba(255,255,255,0.35);
+    font-family:'Space Grotesk',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .grid-line{stroke:rgba(255,255,255,0.08); stroke-width:1;}
+  .grid-line.mid{stroke:rgba(245,166,35,0.35); stroke-dasharray:4 4;}
+  .dot{cursor:pointer; transition:r 0.15s ease;}
+  .dot:hover{filter:brightness(1.2);}
+  .dot-label{
+    fill:rgba(255,255,255,0.85);
+    font-family:'Inter',sans-serif;
+    font-size:10px;
+    font-weight:600;
+    pointer-events:none;
+  }
+  .legend{
+    display:flex; gap:16px; flex-wrap:wrap;
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,0.12);
+  }
+  .legend-item{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--blush);}
+  .legend-swatch{width:9px; height:9px; border-radius:50%;}
+
+  /* ---------- TABLE ---------- */
+  .table-wrap{
+    background:var(--white);
+    border-radius:20px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  table{width:100%; border-collapse:collapse;}
+  thead th{
+    text-align:left;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:rgba(20,13,17,0.5);
+    padding:16px 18px;
+    border-bottom:1px solid var(--cream-dim);
+    cursor:pointer;
+    user-select:none;
+    white-space:nowrap;
+  }
+  thead th:hover{color:var(--ink);}
+  tbody tr{
+    border-bottom:1px solid var(--cream-dim);
+    cursor:pointer;
+    transition:background 0.12s ease;
+  }
+  tbody tr:hover{background:var(--cream);}
+  tbody tr:last-child{border-bottom:none;}
+  td{padding:16px 18px; font-size:14px; vertical-align:middle;}
+  td.name{font-weight:600;}
+  .badge{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:600;
+    font-family:'JetBrains Mono',monospace;
+    color:var(--white);
+  }
+  .score-bar-wrap{display:flex; align-items:center; gap:8px;}
+  .score-bar{width:52px; height:5px; border-radius:3px; background:var(--cream-dim); overflow:hidden;}
+  .score-bar > div{height:100%; background:var(--plum);}
+  .score-num{font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(20,13,17,0.6);}
+
+  /* ---------- DETAIL CARD ---------- */
+  .detail{
+    margin-top:16px;
+    background:var(--white);
+    border-radius:20px;
+    box-shadow:var(--shadow);
+    padding:26px 28px;
+  }
+  .detail-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;}
+  .detail-head h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:22px;
+    margin:0 0 4px;
+  }
+  .detail-head a{color:var(--plum); font-size:13px; text-decoration:none;}
+  .detail-head a:hover{text-decoration:underline;}
+  .detail-actions{display:flex; gap:8px;}
+  .btn-ghost{
+    border:1px solid rgba(20,13,17,0.16);
+    background:transparent;
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .btn-ghost:hover{background:var(--cream);}
+  .btn-ghost.danger{color:var(--threat); border-color:rgba(196,59,59,0.3);}
+  .btn-ghost.danger:hover{background:rgba(196,59,59,0.08);}
+  .detail-summary{margin:16px 0; line-height:1.6; font-size:14px; color:#3a2e33;}
+  .detail-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:16px;
+    margin-top:18px;
+    padding-top:18px;
+    border-top:1px solid var(--cream-dim);
+  }
+  .detail-field label{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:rgba(20,13,17,0.45);
+    margin-bottom:4px;
+  }
+  .detail-field div{font-size:13px; font-weight:500;}
+  .customer-chip{
+    display:inline-block;
+    background:var(--cream);
+    padding:3px 10px;
+    border-radius:999px;
+    font-size:12px;
+    margin:2px 4px 2px 0;
+  }
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:rgba(20,13,17,0.5);
+    font-size:14px;
+  }
+
+  /* ---------- NEWSFEED ---------- */
+  .news-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+  }
+  .news-meta{font-size:12px; color:rgba(20,13,17,0.5);}
+  .btn-news-refresh{
+    background:var(--plum);
+    color:var(--white);
+    border:none;
+    padding:10px 18px;
+    border-radius:999px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .btn-news-refresh:hover{background:var(--plum-light);}
+  .btn-news-refresh:disabled{opacity:0.5; cursor:default;}
+  .news-progress{
+    font-size:13px;
+    color:rgba(20,13,17,0.55);
+    display:flex; align-items:center; gap:8px;
+    margin-bottom:14px;
+  }
+  .news-progress .pulse-dot{background:var(--plum);}
+  .news-card{
+    background:var(--white);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:18px 20px;
+    margin-bottom:12px;
+  }
+  .news-card-top{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+  .news-company-badge{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    padding:3px 9px;
+    border-radius:999px;
+    color:var(--white);
+  }
+  .news-category-badge{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:999px;
+    background:var(--cream);
+    color:rgba(20,13,17,0.6);
+  }
+  .news-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:rgba(20,13,17,0.4);
+    margin-left:auto;
+  }
+  .news-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:16px;
+    font-weight:600;
+    margin:0 0 6px;
+  }
+  .news-title a{color:var(--ink); text-decoration:none;}
+  .news-title a:hover{color:var(--plum); text-decoration:underline;}
+  .news-byline{
+    font-size:12px;
+    color:rgba(20,13,17,0.5);
+    margin-bottom:8px;
+  }
+  .news-summary{
+    font-size:13.5px;
+    line-height:1.55;
+    color:#3a2e33;
+    margin:0;
+  }
+
+  /* ---------- FULL MATRIX ---------- */
+  .matrix-wrap{
+    background:var(--white);
+    border-radius:20px;
+    box-shadow:var(--shadow);
+    padding:24px;
+    margin-top:20px;
+  }
+  .matrix-heading h3{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:18px;
+    margin:0 0 4px;
+  }
+  .matrix-heading p{
+    font-size:13px;
+    color:rgba(20,13,17,0.55);
+    margin:0 0 16px;
+  }
+  .matrix-scroll{overflow-x:auto; border-radius:12px; border:1px solid var(--cream-dim);}
+  .matrix-table{border-collapse:collapse; width:100%; min-width:1100px;}
+  .matrix-table th, .matrix-table td{
+    padding:10px 16px;
+    font-size:12.5px;
+    text-align:left;
+    border-bottom:1px solid var(--cream-dim);
+    min-width:170px;
+    vertical-align:top;
+  }
+  .matrix-table thead th{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    position:sticky;
+    top:0;
+    background:var(--white);
+    border-bottom:2px solid var(--plum);
+    z-index:3;
+  }
+  .matrix-corner{
+    position:sticky;
+    left:0;
+    background:var(--white);
+    z-index:4;
+    min-width:150px;
+  }
+  .matrix-row-label{
+    position:sticky;
+    left:0;
+    background:var(--cream);
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    color:rgba(20,13,17,0.6);
+    white-space:nowrap;
+    z-index:2;
+    border-right:1px solid var(--cream-dim);
+    min-width:150px;
+  }
+  .matrix-table tbody tr:hover td:not(.matrix-row-label){background:var(--cream);}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="wordmark"><span class="wordmark-dot"></span>FLANK</div>
+    <div class="tagline">Competitive Radar for the GTM Engineering Ecosystem</div>
+
+    <h1 class="headline">Know who's moving in on warm outbound.</h1>
+    <p class="sub">Paste a company name or URL. Flank researches it live and places it on the radar next to everyone else circling the signal-based GTM market.</p>
+
+    <div class="assess-bar">
+      <input id="assessInput" type="text" placeholder="e.g. Clay, or clay.com" />
+      <button id="assessBtn">Assess</button>
+    </div>
+    <div class="status-line" id="statusLine"></div>
+
+    <div class="stat-row">
+      <div class="stat"><b id="statCount">0</b>Tracked</div>
+      <div class="stat"><b id="statThreat">0</b>Direct threats</div>
+      <div class="stat"><b id="statLast">—</b>Last scan</div>
+      <button id="rescanBtn" class="btn-rescan" title="Re-research every tracked company">Force Rescan</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="toolbar">
+    <div class="view-toggle">
+      <button id="tabQuadrant" class="active">Radar</button>
+      <button id="tabTable">Table</button>
+      <button id="tabNews">Newsfeed</button>
+    </div>
+  </div>
+
+  <div id="companyFilter" class="company-filter"></div>
+
+  <p id="compareHint" style="font-size:12px; color:rgba(20,13,17,0.5); margin:-8px 0 16px;">Click a company to open it. Click a second company to compare Primary vs. Secondary side by side.</p>
+
+  <div id="insightBar"></div>
+
+  <div id="quadrantView"></div>
+  <div id="tableView" style="display:none;"></div>
+  <div id="matrixView"></div>
+  <div id="detailView"></div>
+  <div id="newsView" style="display:none;"></div>
+</main>
+
+<script>
+/* Standalone storage shim. Mimics the Claude.ai artifact window.storage API
+   (get/set/delete/list, throws on missing key) using the browser's own
+   localStorage, so nothing else in this file needs to change. */
+if(!window.storage){
+  const NS = 'flank_kv:';
+  window.storage = {
+    async get(key){
+      const raw = localStorage.getItem(NS + key);
+      if(raw === null){ throw new Error('Key not found: ' + key); }
+      return { key, value: raw, shared: false };
+    },
+    async set(key, value){
+      localStorage.setItem(NS + key, value);
+      return { key, value, shared: false };
+    },
+    async delete(key){
+      const existed = localStorage.getItem(NS + key) !== null;
+      localStorage.removeItem(NS + key);
+      return { key, deleted: existed, shared: false };
+    },
+    async list(prefix){
+      const keys = [];
+      const p = NS + (prefix || '');
+      for(let i = 0; i < localStorage.length; i++){
+        const k = localStorage.key(i);
+        if(k && k.startsWith(p)) keys.push(k.slice(NS.length));
+      }
+      return { keys, prefix: prefix || undefined, shared: false };
+    }
+  };
+}
+
+const IDX_KEY = 'flank:index';
+const ITEM_PREFIX = 'flank:item:';
+const TODAY = new Date().toISOString().slice(0, 10);
+
+const ZONES = {
+  threat:    {label:'Direct Threat',        color:'var(--threat)',   hex:'#C43B3B'},
+  rising:    {label:'Rising Challenger',     color:'var(--rising)',   hex:'#F5A623'},
+  adjacent:  {label:'Established Adjacent',  color:'var(--adjacent)', hex:'#8B3E68'},
+  fading:    {label:'Fading',                color:'var(--fading)',   hex:'#9A9088'},
+  self:      {label:'You',                   color:'var(--self)',     hex:'#34C759'}
+};
+
+function zoneOf(item){
+  if(item.is_self) return 'self';
+  const highOverlap = item.overlap >= 50;
+  const highMomentum = item.momentum >= 50;
+  if(highOverlap && highMomentum) return 'threat';
+  if(!highOverlap && highMomentum) return 'rising';
+  if(highOverlap && !highMomentum) return 'adjacent';
+  return 'fading';
+}
+
+function slugify(s){
+  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
+
+const SEED = [
+  {name:'Unify', url:'https://unifygtm.com', segment:'Signal Aggregation & Outbound', overlap:100, momentum:88, status:'Growing', is_self:true, funding_stage:'Multiple rounds: backed by Emergence Capital, Thrive Capital, Battery Ventures, and the OpenAI Startup Fund', pricing_notes:'$700–$1,740+/mo billed annually, credit-based, plus per-seat and per-mailbox add-ons', notable_customers:['Perplexity','Cursor','Justworks','Lattice'], summary:"The platform this radar is built around. Aggregates 40+ intent signal sources into automated Plays that trigger AI-personalized, multi-channel outbound sequences from managed mailboxes.", source_url:'https://www.unifygtm.com/', features:{email:'Native: managed Gmail/Outlook mailboxes', deliverability:'Managed: warmup, rotation, bounce prevention', sms:'Not offered', linkedin:'Social touches inside sequences; no dedicated automation', signals:'40+ signal sources including website visits, champion job-change tracking with monthly refreshes, new hire and hiring signals, funding rounds, G2 category and profile intent, CRM signals such as closed-lost accounts revisiting the site, tech stack detection, ad spend tracking, and a custom AI-built Infinity Signal for anything else', integrations:'40+ data sources, plus CRM, Slack, Zapier', claude:'Not publicly stated: built on GPT-5', sfdc:'Native, read/write', hubspot:'Native, read/write', slack:'Yes: Play notifications', sequence:'Native: Plays (multi-touch, AI-personalized)', chat:'None: no live chat or chatbot', prospecting:'AI Agents: research, list building, qualification', market_share:'Emerging leader in the "warm outbound" sub-category it created; the benchmark most alternatives compare themselves against', funding:'$12M Series A + $40M Series B (Battery Ventures, OpenAI Startup Fund, Thrive Capital, Emergence Capital); total undisclosed', pr:'Perplexity case study ($1.7M pipeline in 3 months) widely cited; 187 features shipped in 2025; Series B raise covered by trade press', size:'64 employees (Built In, San Francisco HQ)', pricing_model:'Credit-based, annual commitment required; reviewers on G2 flag it as confusing and hard to predict month to month', ease_of_use:'No self-serve option; 2-4 week onboarding and a dedicated Plays builder that assumes RevOps capacity on the buying team'}},
+  {name:'Clay', url:'https://clay.com', segment:'Signal Aggregation & Outbound', overlap:85, momentum:90, status:'Growing', funding_stage:'Growth stage, richly funded', pricing_notes:'Credit-based: Launch ~$167/mo, Growth ~$446/mo, custom Enterprise', notable_customers:[], summary:"Open enrichment and workflow platform spanning 150+ data providers. More flexible but more technical than Unify's guided Plays: the most-cited alternative for teams that want to build custom signal stacks rather than use a curated set.", source_url:'https://pipeline.zoominfo.com/sales/unify-gtm-alternatives', features:{email:'Not native: pushes to Smartlead, Instantly, Outreach, or Salesloft', deliverability:'N/A: relies on an external sender', sms:'Not offered', linkedin:'Import/enrichment via Sales Navigator, not outreach automation', signals:'No dedicated signal product of its own; job changes, funding, hiring, and intent data all come from wiring in outside providers (Clearbit, Bombora, People Data Labs, and 150+ others) inside a workflow', integrations:'150+ data providers', claude:'Yes: native "Claude in Clay" action for interactive AI research inside tables', sfdc:'Native, bidirectional', hubspot:'Native, bidirectional', slack:'Yes', sequence:'Not native: enrichment and workflow layer, not a sender', chat:'None', prospecting:'Core strength: waterfall enrichment across 150+ providers', market_share:'Category leader in data enrichment/workflow; $5B tender valuation signals dominant scale in its niche', funding:'$100M Series C at $3.1B valuation (Aug 2025, CapitalG); Jan 2026 employee tender at $5B (DST Global)', pr:'Jan 2026 $5B tender offer widely covered as a signature 2026 AI-sales story; 300+ employees', size:'300+ employees (New York HQ)', pricing_model:'Credit-based tiers with a self-serve Launch plan; full CRM sync and Enterprise features are gated to Growth and above', ease_of_use:'Real learning curve, reviewers cite 4-6 weeks to get comfortable; powerful for a RevOps engineer, steep for a non-technical user, offset by extensive Clay University training'}},
+  {name:'Apollo.io', url:'https://apollo.io', segment:'Contact Database & Prospecting', overlap:65, momentum:80, status:'Growing', funding_stage:'Late stage, well funded', pricing_notes:'Free tier; paid from ~$49 to ~$119/user/mo', notable_customers:[], summary:"265M+ contact database with built-in sequencing, a dialer, and job-change/funding alerts. Budget-friendly counterweight to Unify's signal-first approach: trades signal depth for scale and transparent per-seat pricing.", source_url:'https://salesmotion.io/unify-alternatives', features:{email:'Native', deliverability:'Built-in deliverability suite with bounce logs', sms:'Not confirmed: mobile dialing only', linkedin:'Chrome extension overlay plus activity tracking', signals:'Built-in job-change and funding alerts, plus browser-extension website visitor tracking; no named signal suite on the scale of Unify or ZoomInfo', integrations:'Salesforce, HubSpot, Pipedrive, Zoho, Slack, Zapier, Gong', claude:'Not publicly stated', sfdc:'Native, bidirectional', hubspot:'Native, bidirectional', slack:'Yes', sequence:'Native', chat:'None', prospecting:'Core strength: 265M+ contact database', market_share:'Large self-serve install base; positions itself as the most-adopted all-in-one platform for SMB/mid-market outbound', funding:'Not publicly disclosed in sources reviewed', pr:'Frequently cited as the default budget benchmark in nearly every competitor comparison in this market', size:'Not publicly confirmed', pricing_model:'The most transparent pricing in this set: public per-seat rates from free to $119/user/mo, no sales call required for most tiers', ease_of_use:'Self-serve with same-day setup for a solo user; reviewers report a 10-person team fully onboarded in under a week'}},
+  {name:'Warmly', url:'https://warmly.ai', segment:'Signal Aggregation & Outbound', overlap:75, momentum:70, status:'Active', funding_stage:'Series A+, $6M raised', pricing_notes:'Tiered from free to $30,000+/yr (Full GTM tier)', notable_customers:[], summary:"Real-time website visitor de-anonymization paired with AI chat engagement. Built for converting inbound traffic in the moment, where Unify is built for outbound sequences triggered by intent.", source_url:'https://www.warmly.ai/p/blog/unifygtm-alternatives', features:{email:'Automated follow-up sequences on Inbound Chat tier and above', deliverability:'Not a primary feature', sms:'Not confirmed', linkedin:'Retargeting via LinkedIn ads, not outreach automation', signals:'Job Change Intent is a named product for champion tracking, paired with real-time website visitor identification and bundled third-party intent from Bombora and Demandbase', integrations:'25+ partner bundle, plus Bombora, Demandbase, People Data Labs', claude:'MCP access included on the top (Full GTM) tier', sfdc:'Supported', hubspot:'Supported', slack:'Yes: real-time alerts on the free tier', sequence:'Limited: chat and email follow-up, not a full cadence builder', chat:'Core strength: AI chatbot and live video chat', prospecting:'Not core: visitor identification, not cold prospecting', market_share:'Small challenger: sub-50 employees, focused niche in visitor ID plus chat rather than broad share', funding:'$6M raised across Series A+ (NFX, Felicis, RTP Global, Techstars, Zoom)', pr:'Publishes aggressive head-to-head comparison content positioning itself directly against Unify', size:'11–50 employees (Houston, TX HQ)', pricing_model:'Mixed: a free tier and published starting prices exist, but the top Inbound Chat and Full GTM tiers require a custom quote in the $10K-$30K/yr range', ease_of_use:'Markets itself as operational in hours with no engineering project required; no independent ease-of-use benchmark found'}},
+  {name:'6sense', url:'https://6sense.com', segment:'Enterprise ABM & Intent', overlap:60, momentum:45, status:'Active', funding_stage:'Series E, $426M total raised', pricing_notes:'Custom, typically $35K–$250K+/yr', notable_customers:[], summary:"Enterprise 'Revenue AI' ABM platform with predictive intent scoring and programmatic ad orchestration. Sits above Unify for large ABM programs, though 2026 commentary questions whether generic intent-feed pricing still converts at the rate it used to.", source_url:'https://www.getboomerang.ai/glossaries/unify-gtm-competitors', features:{email:'Via Marketo, Eloqua, HubSpot, or native AI Email integration', deliverability:'N/A: not a sender itself', sms:'Not offered', linkedin:'Native ad segment sync: advertising, not outreach', signals:'Claims 500B+ intent signals analyzed monthly across website visits, keyword research, and engagement patterns; no dedicated champion or job-change tracking product, that data comes through enrichment instead', integrations:'Salesforce, HubSpot, Marketo, Eloqua, Outreach, Salesloft, Slack, and more', claude:'Not publicly stated', sfdc:'Native', hubspot:'Native', slack:'Yes: alerts', sequence:'Orchestrates but does not send: triggers Outreach or Salesloft', chat:'None native', prospecting:'Contact data included, not a core strength', market_share:'Established enterprise ABM leader: $5.2B valuation, self-reported repeat Gartner Magic Quadrant leader placement', funding:'$426M total raised over 10 rounds (Y Combinator, Insight Partners, Bain Capital Ventures); $5.2B valuation', pr:'Named to 2026 independent Revenue Marketing Platform evaluation and the 2025 Deloitte Technology Fast 500; new Chief Product/Marketing Officer hires (Mar 2026)', size:'Not publicly confirmed: large, Series E scale', pricing_model:'Opaque: no public pricing anywhere, fully sales-led quote process; deals estimated at $35K-$250K+/yr depending on tier', ease_of_use:'Steep by most accounts: reviewers cite a complex UI and a real learning curve, with implementation typically running three to six months'}},
+  {name:'ZoomInfo', url:'https://zoominfo.com', segment:'Enterprise ABM & Intent', overlap:55, momentum:75, status:'Growing', funding_stage:'Public company', pricing_notes:'Custom, enterprise pricing', notable_customers:[], summary:"Broad data and GTM platform anchored by a proprietary 'Context Graph' that unifies contact data, conversation intelligence, and behavioral signals. Positions itself as a consolidation play that can replace Unify plus several point tools at once.", source_url:'https://pipeline.zoominfo.com/sales/unify-gtm-alternatives', features:{email:'Native: ZoomInfo Engage', deliverability:'Included in Engage', sms:'Not confirmed', linkedin:'Chrome extension (ReachOut)', signals:'The broadest named signal catalog tracked here: WebSights for visitor identification, Champion Tracking for job changes, Scoops for funding and news triggers, and Job Trends for hiring activity', integrations:'Salesforce, HubSpot, Dynamics, Marketo, Outreach, Salesloft, Slack, Chorus, and hundreds more', claude:'Not publicly stated', sfdc:'Native', hubspot:'Native', slack:'Yes', sequence:'Native: Engage', chat:'Web chat and forms within the SalesOS bundle', prospecting:'Core strength: 320M+ contacts', market_share:'Public-market incumbent: broadest B2B data footprint of any company on this radar', funding:'Public company (Nasdaq: ZI)', pr:'Chorus.ai acquisition (2021, ~$575M) remains central to its conversation-intelligence story', size:'Public company: several thousand employees', pricing_model:'Opaque: fully custom, quote-based pricing across SalesOS, MarketingOS, and OperationsOS, nothing published', ease_of_use:'Moderate to steep depending on which product bundle a team buys; onboarding scope varies a lot by configuration'}},
+  {name:'Common Room', url:'https://commonroom.io', segment:'Community & Product Signals', overlap:45, momentum:75, status:'Consolidating', funding_stage:'$52.9M total raised (Series B)', pricing_notes:'Free Starter tier; mid-market typically $1,000–$5,000/mo', notable_customers:[], summary:"Tracks community and social signals: GitHub, Slack, Discord, LinkedIn, X: instead of website intent. Being acquired by Zoom (announced July 2, 2026), which will fold its buyer-intelligence signal layer into Zoom's AI Revenue Platform rather than continuing as an independent GTM tool.", source_url:'https://tracxn.com/d/companies/common-room/__bDBoNbkHzo2HuTox78wQybiGSJ06-NKuv4c9lc6SCu4', features:{email:'Not native: no cold sending or mailbox warmup', deliverability:'N/A', sms:'Not offered', linkedin:'Signal capture and ad audience sync, not outreach automation', signals:'Community and product signals only: GitHub, Slack, Discord, LinkedIn, and X activity; no website-visitor or champion job-change tracking', integrations:'50+: Salesforce, HubSpot, Slack, Outreach, Salesloft, Gong', claude:'MCP support: RoomieAI agents extend via MCP', sfdc:'Native', hubspot:'Native', slack:'Yes: core signal source', sequence:'Enrolls into Outreach or Salesloft, not a native sender', chat:'None', prospecting:'Not core: signal detection, not a cold contact database', market_share:'Niche community-signal leader; independent market position ending as it is absorbed into Zoom', funding:'$52.9M total raised across 3 rounds (Index Ventures, Greylock, Madrona)', pr:"Breaking: Zoom announced its acquisition of Common Room on July 2, 2026: folding buyer intelligence into Zoom's AI Revenue Platform", size:'Not publicly confirmed', pricing_model:'A free Starter tier exists, but Team and Enterprise tiers are quote-based; typical mid-market deals land $1,000-$5,000/mo', ease_of_use:'Real onboarding period reported by users; one reviewer cited three to four weeks to understand signal weighting and get useful output'}},
+  {name:'Koala', url:'', segment:'Signal Aggregation & Outbound', overlap:15, momentum:5, status:'Acquired', funding_stage:'Acquired by Cursor, July 2025', pricing_notes:'N/A: platform shut down', notable_customers:[], summary:"Formerly one of Unify's closest competitors in warm outbound and visitor identification. Acquired by Cursor in July 2025; its GTM platform was shut down shortly after. Kept on the radar as a live example of category consolidation.", source_url:'https://salesmotion.io/unify-alternatives', features:{email:'N/A: shut down', deliverability:'N/A: shut down', sms:'N/A: shut down', linkedin:'N/A: shut down', signals:'N/A: platform shut down', integrations:'N/A: shut down', claude:'N/A: shut down', sfdc:'N/A: shut down', hubspot:'N/A: shut down', slack:'N/A: shut down', sequence:'N/A: shut down', chat:'N/A: shut down', prospecting:'N/A: shut down', market_share:'None: exited the market via acquisition', funding:'Undisclosed prior to acquisition', pr:'Acquired by Cursor, July 2025, cited across the market as the clearest 2025 warm-outbound consolidation event', size:'N/A: shut down', pricing_model:'N/A: platform shut down', ease_of_use:'N/A: platform shut down'}},
+  {name:'Artisan', url:'https://artisan.co', segment:'AI SDR Agent', overlap:45, momentum:85, status:'Growing', funding_stage:'Well funded, high profile', pricing_notes:'Custom, seat-based', notable_customers:[], summary:"Autonomous AI sales rep ('Ava') that runs the full outbound motion end to end. Narrower in scope than Unify, but its full-autonomy positioning is pulling budget from signal-plus-outreach platforms.", source_url:'https://www.getboomerang.ai/glossaries/unify-gtm-competitors', features:{email:'Native: Ava sends autonomously', deliverability:'Not publicly detailed', sms:'Not confirmed', linkedin:'Reported as in development in third-party comparisons', signals:'Not publicly detailed beyond its 300M+ contact database; no confirmed champion-tracking or named signal product', integrations:'Not publicly detailed', claude:'Not publicly stated', sfdc:'Not publicly confirmed', hubspot:'Not publicly confirmed', slack:'Not publicly confirmed', sequence:'Native: full autonomy', chat:'None', prospecting:'300M+ contact database', market_share:'High-visibility challenger in the AI SDR sub-category, competing chiefly with 11x and Rox', funding:'Well funded: exact figures not confirmed in sources reviewed', pr:'One of the most talked-about AI SDR brands of 2025–2026 on the strength of its "Ava" marketing campaign', size:'Not publicly confirmed', pricing_model:'Custom, seat-based pricing; not published publicly', ease_of_use:'Not publicly detailed; positioned as low-effort given full autonomy, but no independent review data confirms that'}},
+  {name:'SyncGTM', url:'https://syncgtm.com', segment:'Budget Alternative', overlap:80, momentum:65, status:'Growing', funding_stage:'Early stage', pricing_notes:"$99/mo flat vs. Unify's $700+/mo", notable_customers:[], summary:"A newer, direct clone of Unify's signal-to-outbound loop at roughly 85% lower cost, with transparent flat pricing instead of Unify's credit system. The most-named 'cheaper Unify' in 2026 buyer comparisons.", source_url:'https://syncgtm.com/blog/unify-gtm-review', features:{email:'Via Instantly integration, not native sending', deliverability:'N/A: relies on Instantly or another external sender', sms:'Not offered', linkedin:'Enrichment via ContactOut, not outreach automation', signals:'Waterfall-style aggregation across 40+ sources similar to Clay and Unify, but no named or dedicated signal types confirmed in sources reviewed', integrations:'40+: HubSpot, Salesforce, Pipedrive, Apollo, OpenAI, Slack, Reddit, DataForSEO', claude:'Not publicly stated: integrates OpenAI', sfdc:'Native', hubspot:'Native', slack:'Yes', sequence:'Not native: triggers Instantly campaigns', chat:'None', prospecting:'Enrichment-focused, waterfall across 40+ sources', market_share:'Early-stage, low-share: positions purely on price versus Unify', funding:'Not publicly disclosed', pr:'No major press events found; visibility comes mostly from its own comparison content', size:'Not publicly confirmed: early stage', pricing_model:'The most transparent budget option here: a flat $99/mo published rate, no credit system', ease_of_use:'Markets itself as faster to set up than Unify; independent review coverage is thin so far'}},
+  {name:'Qualified', url:'https://qualified.com', segment:'AI SDR Agent', overlap:40, momentum:55, status:'Acquired', funding_stage:'Acquired by Salesforce, deal closed April 1, 2026; $163M raised prior across 4 rounds', pricing_notes:'No longer sold standalone; being folded into Salesforce Agentforce and Sales Cloud', notable_customers:[], summary:"Salesforce-native conversational marketing and AI SDR platform built around Piper, a chatbot that identifies website visitors, runs real-time chat and video conversations, and books meetings using Salesforce CRM data. Acquired by Salesforce (deal closed April 1, 2026), so it now competes as part of Agentforce rather than as an independent product.", source_url:'https://www.salesforce.com/news/stories/salesforce-signs-definitive-agreement-to-acquire-qualified/', features:{email:'Yes: email nurture follow-up when a visitor is not ready to chat live', deliverability:'Not a core focus', sms:'Not confirmed', linkedin:'Not confirmed', signals:'Runs on Salesforce CRM data such as known leads, contacts, and accounts, plus third-party intent through 6sense and Demandbase integrations rather than its own named signal catalog', integrations:'Salesforce (native), HubSpot, Marketo, Eloqua, Salesloft, 6sense, Demandbase, Gong, Slack', claude:'Not publicly stated', sfdc:'Native and deep: built by ex-Salesforce founders, core to the product', hubspot:'Native: Piper for HubSpot launched Sept 2025', slack:'Yes, listed among its integrations', sequence:'Not an outbound sequencer; runs its own chat and nurture flows instead', chat:'Core strength: Piper AI chatbot with real-time chat, voice, and video conversations', prospecting:'Not core: engages inbound visitors rather than prospecting outbound lists', market_share:'Was the leading Salesforce-native conversational marketing platform, competing chiefly with Drift; now absorbed directly into Salesforce Agentforce, one of the biggest consolidation moves in this market', funding:'$163M total raised across 4 rounds (Salesforce Ventures, Tiger Global, Sapphire Ventures, Norwest, Redpoint); last raise a $95M Series C at roughly $471M valuation (Apr 2022)', pr:'Salesforce announced its acquisition of Qualified on Dec 17, 2025; the deal closed April 1, 2026 and Qualified is now marketed as "Piper the AI SDR Agent" inside Agentforce', size:'326 employees at last count before the acquisition (Tracxn, Mar 2026)', pricing_model:'No longer published; pricing is now handled through Salesforce\'s own Agentforce and Sales Cloud packaging', ease_of_use:'Straightforward for teams already on Salesforce, since it was built by former Salesforce staff for that ecosystem; reviewers flagged setup complexity for less mature admin teams'}}
+];
+
+const FEATURE_ROWS = [
+  {key:'email', label:'Email'},
+  {key:'deliverability', label:'Email Deliverability'},
+  {key:'sms', label:'SMS'},
+  {key:'linkedin', label:'LinkedIn'},
+  {key:'signals', label:'Intent Signals'},
+  {key:'integrations', label:'Number Of Integrations'},
+  {key:'claude', label:'Claude / MCP Integration'},
+  {key:'sfdc', label:'SFDC Integration'},
+  {key:'hubspot', label:'HubSpot Integration'},
+  {key:'slack', label:'Slack Integration'},
+  {key:'sequence', label:'Sequence Automation'},
+  {key:'chat', label:'Chat Product'},
+  {key:'prospecting', label:'Prospecting Tools'},
+  {key:'pricing_model', label:'Pricing Model'},
+  {key:'ease_of_use', label:'Perceived Ease Of Use'},
+  {key:'market_share', label:'Market Share'},
+  {key:'funding', label:'Funding'},
+  {key:'pr', label:'PR / Media'},
+  {key:'size', label:'Company Size'}
+];
+
+async function getIndex(){
+  try{
+    const r = await window.storage.get(IDX_KEY);
+    return r ? JSON.parse(r.value) : [];
+  }catch(e){ return []; }
+}
+async function setIndex(arr){ await window.storage.set(IDX_KEY, JSON.stringify(arr)); }
+async function getItem(slug){
+  try{
+    const r = await window.storage.get(ITEM_PREFIX + slug);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){ return null; }
+}
+async function saveItem(item){
+  await window.storage.set(ITEM_PREFIX + item.slug, JSON.stringify(item));
+  const idx = await getIndex();
+  if(!idx.includes(item.slug)){
+    idx.push(item.slug);
+    await setIndex(idx);
+  }
+}
+async function deleteItem(slug){
+  try{ await window.storage.delete(ITEM_PREFIX + slug); }catch(e){}
+  const idx = await getIndex();
+  await setIndex(idx.filter(s => s !== slug));
+}
+async function seedIfEmpty(){
+  for(const s of SEED){
+    const slug = slugify(s.name);
+    const existing = await getItem(slug);
+    if(!existing || existing.source !== 'live'){
+      const item = Object.assign({}, s, {slug, last_updated: TODAY, source:'seed'});
+      await saveItem(item);
+    }
+  }
+}
+async function loadAll(){
+  const idx = await getIndex();
+  const items = [];
+  for(const slug of idx){
+    const it = await getItem(slug);
+    if(it) items.push(it);
+  }
+  return items;
+}
+
+let ALL_ITEMS = [];
+let ACTIVE_VIEW = 'quadrant';
+let HIDDEN_SLUGS = new Set();
+let SORT_KEY = 'overlap';
+let SORT_DIR = -1;
+let PRIMARY_SLUG = null;
+let SECONDARY_SLUG = null;
+
+function fmtDate(d){
+  if(!d) return '—';
+  try{
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  }catch(e){ return d; }
+}
+
+function updateStats(){
+  document.getElementById('statCount').textContent = ALL_ITEMS.filter(i => !i.is_self).length;
+  document.getElementById('statThreat').textContent = ALL_ITEMS.filter(i => zoneOf(i) === 'threat').length;
+  const dates = ALL_ITEMS.map(i => i.last_updated).filter(Boolean).sort();
+  document.getElementById('statLast').textContent = dates.length ? fmtDate(dates[dates.length-1]) : '—';
+}
+
+function renderCompanyFilter(){
+  const el = document.getElementById('companyFilter');
+  const items = ALL_ITEMS.slice().sort((a,b) => (b.is_self?1:0) - (a.is_self?1:0) || a.name.localeCompare(b.name));
+  const chips = items.map(it => {
+    const on = !HIDDEN_SLUGS.has(it.slug);
+    const color = it.is_self ? ZONES.self.hex : ZONES[zoneOf(it)].hex;
+    return `<button class="company-chip ${on ? 'on' : ''}" data-slug="${escapeHtml(it.slug)}" style="color:${on ? color : ''}"><span class="chip-dot"></span>${escapeHtml(it.name)}</button>`;
+  }).join('');
+  el.innerHTML = `${chips}<button class="chip-action" id="chipShowAll">Show All</button><button class="chip-action" id="chipHideAll">Hide All</button>`;
+
+  el.querySelectorAll('.company-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const slug = btn.getAttribute('data-slug');
+      if(HIDDEN_SLUGS.has(slug)) HIDDEN_SLUGS.delete(slug); else HIDDEN_SLUGS.add(slug);
+      renderAll();
+    });
+  });
+  document.getElementById('chipShowAll').addEventListener('click', () => { HIDDEN_SLUGS.clear(); renderAll(); });
+  document.getElementById('chipHideAll').addEventListener('click', () => {
+    HIDDEN_SLUGS = new Set(ALL_ITEMS.map(i => i.slug));
+    renderAll();
+  });
+}
+
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function filteredItems(){
+  return ALL_ITEMS.filter(i => !HIDDEN_SLUGS.has(i.slug));
+}
+
+function resolveLabelPositions(points, minGap, xThreshold){
+  points.forEach(p => { p.labelY = p.cy; });
+  for(let iter = 0; iter < 40; iter++){
+    let moved = false;
+    for(let i = 0; i < points.length; i++){
+      for(let j = i + 1; j < points.length; j++){
+        const a = points[i], b = points[j];
+        if(Math.abs(a.cx - b.cx) < xThreshold){
+          const dy = b.labelY - a.labelY;
+          if(Math.abs(dy) < minGap){
+            const push = (minGap - Math.abs(dy)) / 2 + 0.4;
+            if(dy >= 0){ a.labelY -= push; b.labelY += push; }
+            else { a.labelY += push; b.labelY -= push; }
+            moved = true;
+          }
+        }
+      }
+    }
+    if(!moved) break;
+  }
+  return points;
+}
+
+function renderQuadrant(){
+  const el = document.getElementById('quadrantView');
+  const items = filteredItems();
+  const W = 600, H = 440, PAD = 40;
+  const plotW = W - PAD*2, plotH = H - PAD*2;
+
+  const toX = v => PAD + (v/100)*plotW;
+  const toY = v => PAD + plotH - (v/100)*plotH;
+
+  const points = items.map(item => ({
+    item,
+    cx: toX(item.overlap),
+    cy: toY(item.momentum)
+  }));
+  resolveLabelPositions(points, 15, 150);
+
+  let dots = '';
+  points.forEach(pt => {
+    const item = pt.item;
+    const zone = zoneOf(item);
+    const cx = pt.cx, cy = pt.cy;
+    const labelY = Math.max(PAD + 4, Math.min(H - PAD - 4, pt.labelY));
+    const isPrimary = item.slug === PRIMARY_SLUG;
+    const isSecondary = item.slug === SECONDARY_SLUG;
+    const ring = isPrimary ? `<circle cx="${cx}" cy="${cy}" r="13" fill="none" stroke="var(--amber)" stroke-width="2"/>`
+               : isSecondary ? `<circle cx="${cx}" cy="${cy}" r="13" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="3 3"/>`
+               : '';
+    const marker = item.is_self
+      ? `<circle cx="${cx}" cy="${cy}" r="7" fill="${ZONES[zone].hex}" stroke="#FFFFFF" stroke-width="2"/>`
+      : `<circle class="dot" cx="${cx}" cy="${cy}" r="7" fill="${ZONES[zone].hex}" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>`;
+    const leader = Math.abs(labelY - cy) > 3
+      ? `<line x1="${cx+7}" y1="${cy}" x2="${cx+10}" y2="${labelY}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>`
+      : '';
+    dots += `
+      <g class="dot-group" data-slug="${escapeHtml(item.slug)}" style="cursor:pointer;">
+        ${ring}
+        ${leader}
+        ${marker}
+        <text class="dot-label" x="${cx+12}" y="${labelY+4}">${escapeHtml(item.name)}${item.is_self ? ' (You)' : ''}</text>
+      </g>`;
+  });
+
+  let grid = '';
+  for(let g=0; g<=100; g+=25){
+    grid += `<line class="grid-line" x1="${toX(g)}" y1="${PAD}" x2="${toX(g)}" y2="${H-PAD}"/>`;
+    grid += `<line class="grid-line" x1="${PAD}" y1="${toY(g)}" x2="${W-PAD}" y2="${toY(g)}"/>`;
+  }
+
+  el.innerHTML = `
+    <div class="quadrant-panel">
+      <svg viewBox="0 0 ${W} ${H}">
+        ${grid}
+        <line class="grid-line mid" x1="${toX(50)}" y1="${PAD}" x2="${toX(50)}" y2="${H-PAD}"/>
+        <line class="grid-line mid" x1="${PAD}" y1="${toY(50)}" x2="${W-PAD}" y2="${toY(50)}"/>
+        <text class="zone-label" x="${toX(52)}" y="${PAD+18}">Direct Threat</text>
+        <text class="zone-label" x="${PAD+4}" y="${PAD+18}">Rising Challenger</text>
+        <text class="zone-label" x="${toX(52)}" y="${H-PAD-8}">Established Adjacent</text>
+        <text class="zone-label" x="${PAD+4}" y="${H-PAD-8}">Fading</text>
+        <text class="axis-label" x="${W/2-30}" y="${H-8}">OVERLAP →</text>
+        <text class="axis-label" x="${12}" y="${H/2}" transform="rotate(-90 12 ${H/2})">MOMENTUM →</text>
+        ${dots}
+      </svg>
+      <div class="legend">
+        ${Object.entries(ZONES).map(([k,z]) => `
+          <div class="legend-item"><span class="legend-swatch" style="background:${z.hex}"></span>${z.label}</div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  el.querySelectorAll('.dot-group').forEach(g => {
+    g.addEventListener('click', () => selectItem(g.getAttribute('data-slug')));
+  });
+}
+
+function renderTable(){
+  const el = document.getElementById('tableView');
+  let items = filteredItems().slice();
+  items.sort((a,b) => {
+    let av = a[SORT_KEY], bv = b[SORT_KEY];
+    if(typeof av === 'string') av = av.toLowerCase();
+    if(typeof bv === 'string') bv = bv.toLowerCase();
+    if(av < bv) return -1 * SORT_DIR;
+    if(av > bv) return 1 * SORT_DIR;
+    return 0;
+  });
+
+  if(items.length === 0){
+    el.innerHTML = `<div class="table-wrap"><div class="empty-state">Nothing tracked in this segment yet.</div></div>`;
+    return;
+  }
+
+  const cols = [
+    {key:'name', label:'Company'},
+    {key:'segment', label:'Segment'},
+    {key:'overlap', label:'Overlap'},
+    {key:'momentum', label:'Momentum'},
+    {key:'status', label:'Status'},
+    {key:'last_updated', label:'Updated'}
+  ];
+
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          ${cols.map(c => `<th data-key="${c.key}">${c.label}${SORT_KEY===c.key ? (SORT_DIR===1?' ↑':' ↓') : ''}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${items.map(item => {
+            const zone = zoneOf(item);
+            const badgeBg = item.is_self ? 'var(--self)' : ZONES[zone].hex;
+            const badgeColor = item.is_self ? 'var(--ink)' : 'var(--white)';
+            const rowMark = item.slug === PRIMARY_SLUG ? 'border-left:3px solid var(--amber);'
+                           : item.slug === SECONDARY_SLUG ? 'border-left:3px solid var(--plum);' : '';
+            return `<tr data-slug="${escapeHtml(item.slug)}" style="${rowMark}">
+              <td class="name">${escapeHtml(item.name)}${item.is_self ? ' <span class="badge" style="background:var(--self); color:var(--ink); margin-left:6px;">You</span>' : ''}</td>
+              <td>${escapeHtml(item.segment)}</td>
+              <td><div class="score-bar-wrap"><div class="score-bar"><div style="width:${item.overlap}%"></div></div><span class="score-num">${item.overlap}</span></div></td>
+              <td><div class="score-bar-wrap"><div class="score-bar"><div style="width:${item.momentum}%"></div></div><span class="score-num">${item.momentum}</span></div></td>
+              <td><span class="badge" style="background:${badgeBg}; color:${badgeColor};">${escapeHtml(item.status)}</span></td>
+              <td class="mono" style="color:rgba(20,13,17,0.55); font-size:12px;">${fmtDate(item.last_updated)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  el.querySelectorAll('thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.getAttribute('data-key');
+      if(SORT_KEY === key){ SORT_DIR *= -1; } else { SORT_KEY = key; SORT_DIR = -1; }
+      renderTable();
+    });
+  });
+  el.querySelectorAll('tbody tr').forEach(tr => {
+    tr.addEventListener('click', () => selectItem(tr.getAttribute('data-slug')));
+  });
+}
+
+function selectItem(slug){
+  if(!PRIMARY_SLUG){
+    PRIMARY_SLUG = slug;
+  } else if(PRIMARY_SLUG === slug && !SECONDARY_SLUG){
+    PRIMARY_SLUG = null;
+  } else if(!SECONDARY_SLUG && slug !== PRIMARY_SLUG){
+    SECONDARY_SLUG = slug;
+  } else {
+    PRIMARY_SLUG = slug;
+    SECONDARY_SLUG = null;
+  }
+  renderAll();
+}
+
+function clearCompare(){
+  PRIMARY_SLUG = null;
+  SECONDARY_SLUG = null;
+  renderAll();
+}
+
+function swapCompare(){
+  const t = PRIMARY_SLUG;
+  PRIMARY_SLUG = SECONDARY_SLUG;
+  SECONDARY_SLUG = t;
+  renderAll();
+}
+
+function singleDetailHtml(item){
+  const zone = zoneOf(item);
+  return `
+    <div class="detail">
+      <div class="detail-head">
+        <div>
+          <h2>${escapeHtml(item.name)} <span class="badge" style="background:${item.is_self ? 'var(--self)' : ZONES[zone].hex}; color:${item.is_self ? 'var(--ink)' : 'var(--white)'}; margin-left:6px;">${ZONES[zone].label}</span></h2>
+          ${item.url ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener">${escapeHtml(item.url)}</a>` : ''}
+        </div>
+        <div class="detail-actions">
+          <button class="btn-ghost" id="reassessBtn">Re-Assess</button>
+          ${!item.is_self ? `<button class="btn-ghost danger" id="deleteBtn">Remove</button>` : ''}
+          <button class="btn-ghost" id="closeBtn">Close</button>
+        </div>
+      </div>
+      <p class="detail-summary">${escapeHtml(item.summary)}</p>
+      <div class="detail-grid">
+        <div class="detail-field"><label>Segment</label><div>${escapeHtml(item.segment)}</div></div>
+        <div class="detail-field"><label>Overlap / Momentum</label><div>${item.overlap} / ${item.momentum}</div></div>
+        <div class="detail-field"><label>Funding stage</label><div>${escapeHtml(item.funding_stage || 'Unknown')}</div></div>
+        <div class="detail-field"><label>Pricing</label><div>${escapeHtml(item.pricing_notes || 'Unknown')}</div></div>
+        <div class="detail-field"><label>Last updated</label><div>${fmtDate(item.last_updated)}</div></div>
+        ${item.source_url ? `<div class="detail-field"><label>Source</label><div><a href="${escapeHtml(item.source_url)}" target="_blank" rel="noopener" style="color:var(--plum);">View</a></div></div>` : ''}
+      </div>
+      ${item.notable_customers && item.notable_customers.length ? `
+        <div style="margin-top:16px;">
+          <label style="display:block; font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.04em; color:rgba(20,13,17,0.45); margin-bottom:6px;">Notable Customers</label>
+          ${item.notable_customers.map(c => `<span class="customer-chip">${escapeHtml(c)}</span>`).join('')}
+        </div>` : ''}
+      <p style="margin-top:18px; font-size:12px; color:rgba(20,13,17,0.5);">Click another company on the radar or table to compare it against ${escapeHtml(item.name)}.</p>
+    </div>
+  `;
+}
+
+function compareDetailHtml(primary, secondary){
+  const pZone = zoneOf(primary), sZone = zoneOf(secondary);
+  const rows = FEATURE_ROWS.map(row => {
+    const pVal = (primary.features && primary.features[row.key]) || 'Not captured';
+    const sVal = (secondary.features && secondary.features[row.key]) || 'Not captured';
+    return `<tr>
+      <td class="mono" style="font-size:11px; text-transform:uppercase; letter-spacing:0.03em; color:rgba(20,13,17,0.5); white-space:nowrap;">${escapeHtml(row.label)}</td>
+      <td style="font-size:13px;">${escapeHtml(pVal)}</td>
+      <td style="font-size:13px;">${escapeHtml(sVal)}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="detail">
+      <div class="detail-head">
+        <div>
+          <h2>Head-To-Head Comparison</h2>
+          <p style="margin:4px 0 0; font-size:13px; color:rgba(20,13,17,0.55);">Primary vs. Secondary: click a different company to swap either side.</p>
+        </div>
+        <div class="detail-actions">
+          <button class="btn-ghost" id="swapBtn">Swap</button>
+          <button class="btn-ghost" id="clearBtn">Clear Comparison</button>
+        </div>
+      </div>
+      <div class="table-wrap" style="margin-top:18px; box-shadow:none; border:1px solid var(--cream-dim);">
+        <table>
+          <thead><tr>
+            <th>Dimension</th>
+            <th>${escapeHtml(primary.name)}${primary.is_self ? ' (You)' : ''} <span class="badge" style="background:${primary.is_self ? 'var(--self)' : ZONES[pZone].hex}; color:${primary.is_self ? 'var(--ink)' : 'var(--white)'};">${ZONES[pZone].label}</span></th>
+            <th>${escapeHtml(secondary.name)}${secondary.is_self ? ' (You)' : ''} <span class="badge" style="background:${secondary.is_self ? 'var(--self)' : ZONES[sZone].hex}; color:${secondary.is_self ? 'var(--ink)' : 'var(--white)'};">${ZONES[sZone].label}</span></th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td class="mono" style="font-size:11px; text-transform:uppercase; letter-spacing:0.03em; color:rgba(20,13,17,0.5);">Overlap / Momentum</td>
+              <td style="font-size:13px;">${primary.overlap} / ${primary.momentum}</td>
+              <td style="font-size:13px;">${secondary.overlap} / ${secondary.momentum}</td>
+            </tr>
+            <tr>
+              <td class="mono" style="font-size:11px; text-transform:uppercase; letter-spacing:0.03em; color:rgba(20,13,17,0.5);">Pricing</td>
+              <td style="font-size:13px;">${escapeHtml(primary.pricing_notes || 'Unknown')}</td>
+              <td style="font-size:13px;">${escapeHtml(secondary.pricing_notes || 'Unknown')}</td>
+            </tr>
+            ${rows}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderDetail(){
+  const el = document.getElementById('detailView');
+  const primary = PRIMARY_SLUG ? ALL_ITEMS.find(i => i.slug === PRIMARY_SLUG) : null;
+  const secondary = SECONDARY_SLUG ? ALL_ITEMS.find(i => i.slug === SECONDARY_SLUG) : null;
+
+  if(!primary){ el.innerHTML = ''; return; }
+
+  if(primary && secondary){
+    el.innerHTML = compareDetailHtml(primary, secondary);
+    document.getElementById('swapBtn').addEventListener('click', swapCompare);
+    document.getElementById('clearBtn').addEventListener('click', clearCompare);
+    return;
+  }
+
+  el.innerHTML = singleDetailHtml(primary);
+  document.getElementById('closeBtn').addEventListener('click', clearCompare);
+  const deleteBtn = document.getElementById('deleteBtn');
+  if(deleteBtn){
+    deleteBtn.addEventListener('click', async () => {
+      await deleteItem(primary.slug);
+      clearCompare();
+    });
+  }
+  document.getElementById('reassessBtn').addEventListener('click', () => runAssessment(primary.name, primary.url));
+}
+
+function renderFullMatrix(){
+  const el = document.getElementById('matrixView');
+  const items = filteredItems().slice().sort((a,b) => (b.is_self?1:0) - (a.is_self?1:0) || b.overlap - a.overlap);
+
+  if(items.length === 0){
+    el.innerHTML = '';
+    return;
+  }
+
+  const header = items.map(it => {
+    const zone = zoneOf(it);
+    const badgeBg = it.is_self ? 'var(--self)' : ZONES[zone].hex;
+    const badgeColor = it.is_self ? 'var(--ink)' : 'var(--white)';
+    return `<th>${escapeHtml(it.name)}<br><span class="badge" style="background:${badgeBg}; color:${badgeColor}; margin-top:4px;">${it.is_self ? 'You' : ZONES[zone].label}</span></th>`;
+  }).join('');
+
+  const rows = FEATURE_ROWS.map(row => {
+    const cells = items.map(it => {
+      const val = (it.features && it.features[row.key]) || 'Not captured';
+      return `<td>${escapeHtml(val)}</td>`;
+    }).join('');
+    return `<tr><td class="matrix-row-label">${escapeHtml(row.label)}</td>${cells}</tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="matrix-wrap">
+      <div class="matrix-heading">
+        <h3>Full Evaluation Matrix</h3>
+        <p>Every tracked company evaluated against the same criteria. Click any two on the radar or table above for a focused Primary vs. Secondary comparison.</p>
+      </div>
+      <div class="matrix-scroll">
+        <table class="matrix-table">
+          <thead><tr><th class="matrix-corner">Dimension</th>${header}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderInsightBar(){
+  const el = document.getElementById('insightBar');
+  const unify = ALL_ITEMS.find(i => i.is_self);
+  if(!unify){ el.innerHTML = ''; return; }
+  const prNote = (unify.features && unify.features.pr) ? unify.features.pr : 'strong recent funding and customer momentum';
+  el.innerHTML = `
+    <div class="insight-bar">
+      <span class="insight-dot"></span>
+      <div>
+        <strong>Why Unify Sits Here (Overlap ${unify.overlap} / Momentum ${unify.momentum})</strong>
+        <p>Overlap is 100 because this radar is built around Unify's own motion, so nothing else can score higher on that axis. Momentum is ${unify.momentum}, based on ${escapeHtml(prNote)}. Ease of use and price aren't part of this score; those live in the evaluation matrix below.</p>
+      </div>
+    </div>
+  `;
+}
+
+function renderAll(){
+  updateStats();
+  renderCompanyFilter();
+
+  const insightBar = document.getElementById('insightBar');
+  const compareHint = document.getElementById('compareHint');
+  const quadrantView = document.getElementById('quadrantView');
+  const tableView = document.getElementById('tableView');
+  const matrixView = document.getElementById('matrixView');
+  const detailView = document.getElementById('detailView');
+  const newsView = document.getElementById('newsView');
+
+  if(ACTIVE_VIEW === 'news'){
+    insightBar.style.display = 'none';
+    compareHint.style.display = 'none';
+    quadrantView.style.display = 'none';
+    tableView.style.display = 'none';
+    matrixView.style.display = 'none';
+    detailView.style.display = 'none';
+    newsView.style.display = '';
+    renderNewsView();
+    return;
+  }
+
+  insightBar.style.display = '';
+  compareHint.style.display = '';
+  matrixView.style.display = '';
+  detailView.style.display = '';
+  newsView.style.display = 'none';
+  renderInsightBar();
+
+  if(ACTIVE_VIEW === 'quadrant'){
+    quadrantView.style.display = '';
+    tableView.style.display = 'none';
+    renderQuadrant();
+  } else {
+    quadrantView.style.display = 'none';
+    tableView.style.display = '';
+    renderTable();
+  }
+  renderFullMatrix();
+  renderDetail();
+}
+
+async function refresh(){
+  ALL_ITEMS = await loadAll();
+  renderAll();
+}
+
+/* ---------- Assessment (live research) ---------- */
+
+const SYSTEM_PROMPT = `You are a competitive intelligence research assistant for a GTM (go-to-market) engineer who tracks the go-to-market and sales-intelligence software market, specifically companies that compete with or sit adjacent to Unify GTM (unifygtm.com). Unify is a warm-outbound platform: it aggregates buyer intent signals (website visits, job changes, funding, hiring, G2 activity and more), then triggers AI-personalized multi-channel outbound sequences through managed mailboxes.
+
+Use web search to research the company named in the user's message. Then respond with ONLY a single raw JSON object: no markdown code fences, no preamble, no explanation before or after it. Required fields, exactly these keys:
+
+{
+ "name": "short company or product name",
+ "url": "primary website, or empty string if unknown",
+ "segment": one of "Signal Aggregation & Outbound" | "AI SDR Agent" | "Contact Database & Prospecting" | "Enterprise ABM & Intent" | "Community & Product Signals" | "Budget Alternative" | "Other",
+ "overlap": integer 0-100, how directly this company competes with Unify's core motion (intent signals -> AI-personalized outbound). 100 = near-identical product, 0 = unrelated,
+ "momentum": integer 0-100, current market momentum from funding, hiring, growth, news, buzz. 100 = red hot, 0 = dormant or defunct,
+ "status": one of "Active" | "Growing" | "Consolidating" | "Acquired" | "Shut Down",
+ "funding_stage": short string, e.g. "Series B, $40M raised" or "Bootstrapped" or "Unknown",
+ "pricing_notes": short string on pricing model and range if known,
+ "notable_customers": array of up to 4 real company names found in search results, empty array if none found,
+ "summary": 2-3 plain-language sentences on what they do and how they compare to Unify,
+ "source_url": the single most useful source URL used,
+ "last_updated": "${TODAY}",
+ "features": {
+   "email": "native email sending, or only via a third-party sender integration: be specific",
+   "deliverability": "managed deliverability/warmup, or N/A",
+   "sms": "SMS channel support, or Not offered / Not confirmed",
+   "linkedin": "native LinkedIn outreach automation, ad-sync only, or none",
+   "signals": "what named intent/buying signals it offers out of the box, e.g. champion job-change tracking, website visitor ID, funding alerts, hiring signals, G2 intent, name the specific named products if the company has them, otherwise describe generally",
+   "integrations": "integration breadth: name the count and a few notable ones if known",
+   "claude": "any publicly stated Claude or MCP (Model Context Protocol) support: say Not publicly stated if you find no evidence, do not guess",
+   "sfdc": "Salesforce (SFDC) integration depth: native/bidirectional, read-only, via Zapier, or none",
+   "hubspot": "HubSpot integration depth",
+   "slack": "Slack integration, yes/no and what it does",
+   "sequence": "native multi-touch sequencing, or orchestrates/triggers a third-party sequencer instead",
+   "chat": "live chat or chatbot product, or none",
+   "prospecting": "is prospecting/contact-database a core strength or a secondary feature",
+   "market_share": "qualitative market position: leader, established, challenger, niche, or exiting: do not invent a percentage",
+   "funding": "total funding raised and notable investors if known, or Not publicly disclosed",
+   "pr": "the single most notable recent press/PR event found (funding, acquisition, product launch, executive hire), or none found",
+   "size": "employee headcount if known, or Not publicly confirmed",
+   "pricing_model": "how transparent the pricing is: public self-serve rates, mixed, or fully opaque/quote-based, plus the rough range if known",
+   "ease_of_use": "perceived ease of use based on review sites and independent sources, cite what you found rather than guessing"
+ }
+}
+
+Ground every field in search results. Do not fabricate customer names, funding figures, pricing, or feature claims. If a field is genuinely uncertain, use a neutral value (40-50 for scores, "Unknown" for text, "Not publicly confirmed" for features) rather than guessing at an extreme.`;
+
+async function runAssessment(query, hintUrl, opts){
+  opts = opts || {};
+  const silent = !!opts.silent;
+  const statusLine = document.getElementById('statusLine');
+  const assessBtn = document.getElementById('assessBtn');
+  if(!silent){
+    assessBtn.disabled = true;
+    statusLine.className = 'status-line loading';
+    statusLine.innerHTML = `<span class="pulse-dot"></span> Researching ${escapeHtml(query)}…`;
+  }
+
+  try{
+    const userMsg = hintUrl
+      ? `Research this company as a potential competitor to Unify GTM: "${query}" (${hintUrl}). Today's date is ${TODAY}.`
+      : `Research this company as a potential competitor to Unify GTM: "${query}". Today's date is ${TODAY}.`;
+
+    const resp = await fetch("/api/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-5",
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: userMsg }],
+        tools: [{ type: "web_search_20260209", name: "web_search" }]
+      })
+    });
+
+    if(!resp.ok){
+      throw new Error(`Request failed (${resp.status})`);
+    }
+
+    const data = await resp.json();
+    const textBlocks = (data.content || [])
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join('\n');
+
+    const clean = textBlocks.replace(/```json|```/g, '').trim();
+    const jsonStart = clean.indexOf('{');
+    const jsonEnd = clean.lastIndexOf('}');
+    if(jsonStart === -1 || jsonEnd === -1){
+      throw new Error('No structured result returned');
+    }
+    const parsed = JSON.parse(clean.slice(jsonStart, jsonEnd + 1));
+    parsed.slug = slugify(parsed.name || query);
+    parsed.overlap = Math.max(0, Math.min(100, Number(parsed.overlap) || 40));
+    parsed.momentum = Math.max(0, Math.min(100, Number(parsed.momentum) || 40));
+    parsed.notable_customers = Array.isArray(parsed.notable_customers) ? parsed.notable_customers : [];
+    parsed.last_updated = parsed.last_updated || TODAY;
+    parsed.source = 'live';
+    if(!parsed.features || typeof parsed.features !== 'object'){
+      parsed.features = {};
+    }
+    FEATURE_ROWS.forEach(row => {
+      if(!parsed.features[row.key]) parsed.features[row.key] = 'Not captured';
+    });
+
+    await saveItem(parsed);
+
+    if(!silent){
+      document.getElementById('assessInput').value = '';
+      statusLine.className = 'status-line';
+      statusLine.textContent = `Added ${parsed.name} to the radar.`;
+      PRIMARY_SLUG = parsed.slug;
+      SECONDARY_SLUG = null;
+      await refresh();
+    }
+    return parsed;
+  }catch(e){
+    if(!silent){
+      statusLine.className = 'status-line error';
+      statusLine.textContent = `Couldn't complete that assessment: ${e.message}. Try again, or a more specific name/URL.`;
+    }
+    return null;
+  }finally{
+    if(!silent){ assessBtn.disabled = false; }
+  }
+}
+
+/* ---------- NEWSFEED ---------- */
+
+const NEWS_KEY_PREFIX = 'flank:news:';
+const NEWS_LOOKBACK_DAYS = 90;
+
+const NEWS_SYSTEM_PROMPT = `You are a market intelligence analyst tracking news about a single company in the GTM (go-to-market) and sales software space. Use web search to find genuinely newsworthy items about the named company from the last three months only. Today's date is ${TODAY}.
+
+Include only real news: funding announcements, acquisitions or mergers, major product launches or feature announcements, executive hires or departures at the VP level or above, significant partnerships, and notable press coverage or industry awards.
+
+Exclude routine blog posts, generic marketing or thought-leadership content, minor feature tweaks, listicles, and comparison or alternatives articles written by competitors. Exclude anything you cannot confirm is dated within the last three months.
+
+Return ONLY a raw JSON array, no markdown fences, no preamble, no text before or after it. Each item must have exactly these fields:
+[{
+ "title": "the article headline",
+ "url": "direct link to the article",
+ "publication": "the outlet or publication name",
+ "author": "the author's name if known, otherwise an empty string",
+ "date": "YYYY-MM-DD, your best estimate if an exact date is not available",
+ "category": one of "Funding" | "Acquisition" | "Product Launch" | "Executive Hire" | "Partnership" | "Award" | "Other",
+ "summary": "2 to 3 short plain sentences describing what happened, written like a person summarizing it, not like a press release"
+}]
+
+Return at most 10 items, most recent first. Do not fabricate articles, dates, authors, or URLs. If you find no genuinely newsworthy items in the last three months, return an empty array.`;
+
+async function getNewsForCompany(slug){
+  try{
+    const r = await window.storage.get(NEWS_KEY_PREFIX + slug);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){ return null; }
+}
+async function setNewsForCompany(slug, payload){
+  await window.storage.set(NEWS_KEY_PREFIX + slug, JSON.stringify(payload));
+}
+
+async function fetchNewsForCompany(item){
+  try{
+    const resp = await fetch("/api/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-5",
+        max_tokens: 1500,
+        system: NEWS_SYSTEM_PROMPT,
+        messages: [{ role: "user", content: `Find recent news about ${item.name} (${item.url || 'no known URL'}). Today's date is ${TODAY}.` }],
+        tools: [{ type: "web_search_20260209", name: "web_search" }]
+      })
+    });
+    if(!resp.ok){
+      let detail = '';
+      try{ detail = (await resp.text()).slice(0, 200); }catch(e2){}
+      throw new Error(`Request failed (${resp.status})${detail ? ': ' + detail : ''}`);
+    }
+    const data = await resp.json();
+    const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
+    const clean = textBlocks.replace(/```json|```/g, '').trim();
+    const start = clean.indexOf('[');
+    const end = clean.lastIndexOf(']');
+    if(start === -1 || end === -1){
+      throw new Error('Model did not return a parseable list' + (clean ? `: "${clean.slice(0,150)}"` : ' (empty response)'));
+    }
+    const items = JSON.parse(clean.slice(start, end + 1));
+    const cleaned = (Array.isArray(items) ? items : []).slice(0, 10).map(n => ({
+      title: n.title || 'Untitled',
+      url: n.url || '',
+      publication: n.publication || 'Unknown publication',
+      author: n.author || '',
+      date: n.date || '',
+      category: n.category || 'Other',
+      summary: n.summary || ''
+    }));
+    await setNewsForCompany(item.slug, { items: cleaned, fetched_at: TODAY });
+    return { ok: true, items: cleaned };
+  }catch(e){
+    return { ok: false, error: e.message };
+  }
+}
+
+async function refreshAllNews(){
+  const btn = document.getElementById('newsRefreshBtn');
+  const progressEl = document.getElementById('newsProgress');
+  const targets = ALL_ITEMS.slice();
+  if(targets.length === 0) return;
+
+  if(btn) btn.disabled = true;
+  let successCount = 0;
+  const failures = [];
+
+  for(let i = 0; i < targets.length; i++){
+    const item = targets[i];
+    if(progressEl){
+      progressEl.style.display = 'flex';
+      progressEl.innerHTML = `<span class="pulse-dot"></span> Pulling news ${i+1} of ${targets.length}: ${escapeHtml(item.name)}…`;
+    }
+    const result = await fetchNewsForCompany(item);
+    if(result.ok){
+      successCount++;
+    } else {
+      failures.push(`${item.name}: ${result.error}`);
+    }
+  }
+
+  if(progressEl){
+    if(failures.length > 0){
+      progressEl.style.display = 'block';
+      progressEl.innerHTML = `<div style="color:var(--threat); font-size:12.5px; line-height:1.5;">Pulled ${successCount} of ${targets.length} companies. Failed: ${failures.map(escapeHtml).join(' • ')}</div>`;
+    } else {
+      progressEl.style.display = 'none';
+    }
+  }
+  if(btn) btn.disabled = false;
+  await renderNewsView({ preserveProgress: failures.length > 0 });
+}
+
+function withinLookback(dateStr){
+  if(!dateStr) return true;
+  const d = new Date(dateStr + 'T00:00:00');
+  if(isNaN(d.getTime())) return true;
+  const cutoff = new Date(TODAY + 'T00:00:00');
+  cutoff.setDate(cutoff.getDate() - NEWS_LOOKBACK_DAYS);
+  return d >= cutoff;
+}
+
+async function renderNewsView(opts){
+  opts = opts || {};
+  const savedProgressHtml = opts.preserveProgress ? (document.getElementById('newsProgress') ? document.getElementById('newsProgress').innerHTML : '') : '';
+  const el = document.getElementById('newsView');
+  const visible = filteredItems();
+  let allNews = [];
+  let anyFetched = false;
+  let oldestFetch = null;
+
+  for(const item of visible){
+    const stored = await getNewsForCompany(item.slug);
+    if(stored){
+      anyFetched = true;
+      if(!oldestFetch || stored.fetched_at < oldestFetch) oldestFetch = stored.fetched_at;
+      stored.items.filter(n => withinLookback(n.date)).forEach(n => {
+        allNews.push(Object.assign({}, n, { companyName: item.name, companySlug: item.slug, zoneHex: item.is_self ? ZONES.self.hex : ZONES[zoneOf(item)].hex }));
+      });
+    }
+  }
+
+  allNews.sort((a,b) => (b.date || '').localeCompare(a.date || ''));
+
+  const metaText = anyFetched
+    ? `Showing news since ${fmtDate(oldestFetch)}. Last full refresh may vary by company.`
+    : 'No news pulled yet for the companies currently shown.';
+
+  const cards = allNews.length === 0
+    ? `<div class="empty-state">${anyFetched ? 'No newsworthy items found in the last three months for the companies currently shown.' : 'Click Refresh Newsfeed to pull the latest funding, product, and leadership news for every tracked company.'}</div>`
+    : allNews.map(n => `
+      <div class="news-card">
+        <div class="news-card-top">
+          <span class="news-company-badge" style="background:${n.zoneHex};">${escapeHtml(n.companyName)}</span>
+          <span class="news-category-badge">${escapeHtml(n.category)}</span>
+          <span class="news-date">${n.date ? fmtDate(n.date) : ''}</span>
+        </div>
+        <h3 class="news-title">${n.url ? `<a href="${escapeHtml(n.url)}" target="_blank" rel="noopener">${escapeHtml(n.title)}</a>` : escapeHtml(n.title)}</h3>
+        <div class="news-byline">${escapeHtml(n.publication)}${n.author ? ' · ' + escapeHtml(n.author) : ''}</div>
+        <p class="news-summary">${escapeHtml(n.summary)}</p>
+      </div>
+    `).join('');
+
+  el.innerHTML = `
+    <div class="news-toolbar">
+      <span class="news-meta">${metaText}</span>
+      <button id="newsRefreshBtn" class="btn-news-refresh">Refresh Newsfeed</button>
+    </div>
+    <div class="news-progress" id="newsProgress" style="${opts.preserveProgress ? 'display:block;' : 'display:none;'}">${savedProgressHtml}</div>
+    ${cards}
+  `;
+  document.getElementById('newsRefreshBtn').addEventListener('click', () => refreshAllNews());
+}
+
+async function forceRescanAll(){
+  const statusLine = document.getElementById('statusLine');
+  const rescanBtn = document.getElementById('rescanBtn');
+  const assessBtn = document.getElementById('assessBtn');
+  const targets = ALL_ITEMS.slice();
+
+  if(targets.length === 0){
+    statusLine.className = 'status-line';
+    statusLine.textContent = 'Nothing tracked yet: add a company first.';
+    return;
+  }
+
+  rescanBtn.disabled = true;
+  assessBtn.disabled = true;
+  let successCount = 0;
+
+  for(let i = 0; i < targets.length; i++){
+    const item = targets[i];
+    statusLine.className = 'status-line loading';
+    statusLine.innerHTML = `<span class="pulse-dot"></span> Force rescanning ${i+1} of ${targets.length}: ${escapeHtml(item.name)}…`;
+    const result = await runAssessment(item.name, item.url, {silent:true});
+    if(result) successCount++;
+  }
+
+  statusLine.className = 'status-line';
+  statusLine.textContent = `Rescan complete: updated ${successCount} of ${targets.length} companies.`;
+  rescanBtn.disabled = false;
+  assessBtn.disabled = false;
+  await refresh();
+}
+
+/* ---------- Wiring ---------- */
+
+document.getElementById('tabQuadrant').addEventListener('click', () => {
+  ACTIVE_VIEW = 'quadrant';
+  document.getElementById('tabQuadrant').classList.add('active');
+  document.getElementById('tabTable').classList.remove('active');
+  document.getElementById('tabNews').classList.remove('active');
+  renderAll();
+});
+document.getElementById('tabTable').addEventListener('click', () => {
+  ACTIVE_VIEW = 'table';
+  document.getElementById('tabTable').classList.add('active');
+  document.getElementById('tabQuadrant').classList.remove('active');
+  document.getElementById('tabNews').classList.remove('active');
+  renderAll();
+});
+document.getElementById('tabNews').addEventListener('click', () => {
+  ACTIVE_VIEW = 'news';
+  document.getElementById('tabNews').classList.add('active');
+  document.getElementById('tabQuadrant').classList.remove('active');
+  document.getElementById('tabTable').classList.remove('active');
+  renderAll();
+});
+document.getElementById('assessBtn').addEventListener('click', () => {
+  const val = document.getElementById('assessInput').value.trim();
+  if(val) runAssessment(val);
+});
+document.getElementById('assessInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    const val = e.target.value.trim();
+    if(val) runAssessment(val);
+  }
+});
+document.getElementById('rescanBtn').addEventListener('click', () => forceRescanAll());
+
+(async function init(){
+  await seedIfEmpty();
+  await refresh();
+})();
+</script>
+</body>
+</html>
