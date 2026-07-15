@@ -4,6 +4,8 @@ Competitive radar for the GTM engineering ecosystem. Tracks Unify GTM against it
 real competitors on a live, click-to-compare radar, a full evaluation matrix, and
 an AI-researched newsfeed, all backed by live web search.
 
+To see this repo in action, click here: https://gtm-radar-production.up.railway.app/
+
 ## What's in this repo
 
 ```
